@@ -1,0 +1,163 @@
+-- bootstrap lazy.nvim, LazyVim and your plugins
+require("config.lazy")
+
+-- vim.api.nvim_create_autocmd("BufReadPost", {
+--   callback = function(args)
+--     -- Always close Neo-tree when a buffer is opened
+--     vim.cmd("silent! Neotree close")
+--
+--     local current = args.buf
+--     -- Save current buffer if modified
+--     if vim.api.nvim_buf_get_option(current, "modified") then
+--       vim.cmd("write")
+--     end
+--
+--     -- Gather list of buffers currently visible in any window
+--     local visible = {}
+--     for _, win in ipairs(vim.api.nvim_list_wins()) do
+--       visible[vim.api.nvim_win_get_buf(win)] = true
+--     end
+--
+--     -- Delete all loaded, listed buffers not visible in any window
+--     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+--       if not visible[buf] and vim.api.nvim_buf_is_loaded(buf) and vim.fn.buflisted(buf) == 1 then
+--         vim.api.nvim_buf_delete(buf, { force = true })
+--       end
+--     end
+--   end,
+-- })
+--
+-- -- Utility to delete all non-visible, listed buffers
+-- local function delete_hidden_buffers()
+--   local visible = {}
+--   for _, win in ipairs(vim.api.nvim_list_wins()) do
+--     visible[vim.api.nvim_win_get_buf(win)] = true
+--   end
+--
+--   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+--     -- Only touch listed and loaded buffers not visible in any window
+--     if not visible[buf] and vim.api.nvim_buf_is_loaded(buf) and vim.fn.buflisted(buf) == 1 then
+--       -- Save if modified before deleting
+--       if vim.api.nvim_buf_get_option(buf, "modified") then
+--         vim.api.nvim_buf_call(buf, function()
+--           vim.cmd("write")
+--         end)
+--       end
+--       vim.api.nvim_buf_delete(buf, { force = true })
+--     end
+--   end
+-- end
+--
+-- -- On entering a buffer in any window, clean up hidden buffers
+-- vim.api.nvim_create_autocmd("BufEnter", {
+--   callback = function()
+--     -- Schedule so buffer switch completes before cleaning up
+--     vim.schedule(delete_hidden_buffers)
+--   end,
+-- })
+--
+-- -- Also hook on WinClosed, just to be sure
+-- vim.api.nvim_create_autocmd("WinClosed", {
+--   callback = function()
+--     vim.schedule(delete_hidden_buffers)
+--   end,
+-- })
+--
+-- -- Automatically close a window if its buffer is manually deleted
+-- vim.api.nvim_create_autocmd("BufDelete", {
+--   callback = function(args)
+--     local bufnr = args.buf
+--     -- For every window, if it's displaying this buffer, close the window
+--     for _, win in ipairs(vim.api.nvim_list_wins()) do
+--       if vim.api.nvim_win_get_buf(win) == bufnr then
+--         -- Avoid closing last window (which would quit Neovim)
+--         if #vim.api.nvim_list_wins() > 1 then
+--           vim.api.nvim_win_close(win, true)
+--         end
+--       end
+--     end
+--   end,
+-- })
+
+-- new code
+--     -- Delete all non-visible, listed buffers (and save if modified)
+-- local function delete_hidden_buffers()
+--   local visible = {}
+--   for _, win in ipairs(vim.api.nvim_list_wins()) do
+--     visible[vim.api.nvim_win_get_buf(win)] = true
+--   end
+--
+--   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+--     if not visible[buf] and vim.api.nvim_buf_is_loaded(buf) and vim.fn.buflisted(buf) == 1 then
+--       if vim.api.nvim_buf_get_option(buf, "modified") then
+--         vim.api.nvim_buf_call(buf, function()
+--           vim.cmd("write")
+--         end)
+--       end
+--       vim.api.nvim_buf_delete(buf, { force = true })
+--     end
+--   end
+-- end
+--
+-- -- Autocommands for buffer/window hygiene
+-- vim.api.nvim_create_autocmd("BufEnter", {
+--   callback = function()
+--     vim.schedule(delete_hidden_buffers)
+--   end,
+-- })
+-- vim.api.nvim_create_autocmd("WinClosed", {
+--   callback = function()
+--     vim.schedule(delete_hidden_buffers)
+--   end,
+-- })
+--
+-- -- Smart buffer delete command, closes all windows showing the buffer first
+-- vim.api.nvim_create_user_command("SmartBdelete", function(opts)
+--   local bufnr = opts.args ~= "" and tonumber(opts.args) or vim.api.nvim_get_current_buf()
+--   local windows = vim.api.nvim_list_wins()
+--   local cnt = #windows
+--
+--   local showing = {}
+--   for _, win in ipairs(windows) do
+--     if vim.api.nvim_win_get_buf(win) == bufnr then
+--       table.insert(showing, win)
+--     end
+--   end
+--
+--   -- If this is the last window, just bdelete and don't close any windows
+--   if cnt == #showing then
+--     if vim.api.nvim_buf_get_option(bufnr, "modified") then
+--       vim.api.nvim_buf_call(bufnr, function()
+--         vim.cmd("write")
+--       end)
+--     end
+--     vim.cmd("bdelete " .. bufnr)
+--     return
+--   end
+--
+--   -- Close all windows showing this buffer (leave one if only one left)
+--   for _, win in ipairs(showing) do
+--     if #vim.api.nvim_list_wins() > 1 then
+--       vim.api.nvim_set_current_win(win)
+--       vim.cmd("close")
+--     end
+--   end
+--
+--   -- Delete the buffer if still loaded
+--   if vim.api.nvim_buf_is_loaded(bufnr) then
+--     if vim.api.nvim_buf_get_option(bufnr, "modified") then
+--       vim.api.nvim_buf_call(bufnr, function()
+--         vim.cmd("write")
+--       end)
+--     end
+--     vim.cmd("bdelete " .. bufnr)
+--   end
+-- end, { nargs = "?", complete = "buffer", desc = "Close all windows showing buffer before deleting it" })
+--
+-- -- Optional: alias for :Bdelete
+-- vim.api.nvim_create_user_command("Bdelete", function()
+--   vim.cmd("SmartBdelete")
+-- end, {})
+--
+-- -- Optional: mapping for <leader>bd
+-- vim.keymap.set("n", "<leader>bd", ":SmartBdelete<CR>", { noremap = true, silent = true })
