@@ -11,3 +11,18 @@ opt.ttimeoutlen = 0
 
 -- vim.g.gruvbox_baby_telescope_theme = 1
 -- vim.g.gruvbox_baby_transparent_mode = 1
+
+-- ~/.config/nvim/lua/config/options.lua
+
+-- Enhanced file watching for external changes
+vim.opt.autoread = true
+vim.opt.updatetime = 100 -- Very fast updates
+vim.opt.timeoutlen = 300
+
+-- Better handling of external file changes
+vim.opt.backup = false
+vim.opt.writebackup = false
+vim.opt.swapfile = false
+
+-- Ensure LazyVim notifications work well with file changes
+vim.g.autoread_keep_scroll_position = true
