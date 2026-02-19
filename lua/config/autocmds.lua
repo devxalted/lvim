@@ -8,7 +8,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   callback = function()
     local text = vim.fn.getreg('"')
     if text and #text > 0 then
-      local handle = io.popen(os.getenv('HOME') .. '/bin/osc52-copy', 'w')
+      local handle = io.popen(os.getenv('HOME') .. '/.local/bin/osc52-copy', 'w')
       if handle then
         handle:write(text)
         handle:close()
