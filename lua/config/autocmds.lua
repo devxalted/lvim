@@ -2,6 +2,13 @@
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 -- Add any additional autocmds here
 
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = "*.templ",
+  callback = function()
+    vim.bo.filetype = "templ"
+  end,
+})
+
 -- OSC 52 clipboard for mosh + tmux (iPad/remote clipboard)
 -- Hook into TextYankPost to send yanked text to iPad clipboard
 vim.api.nvim_create_autocmd('TextYankPost', {
