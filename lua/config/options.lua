@@ -27,3 +27,22 @@ vim.opt.swapfile = false
 
 -- Ensure LazyVim notifications work well with file changes
 vim.g.autoread_keep_scroll_position = true
+
+-- Fix wl-clipboard stripping newlines which breaks linewise paste
+vim.opt.clipboard = "unnamedplus"
+vim.g.clipboard = {
+  name = "wl-clipboard",
+  copy = {
+    ["+"] = "wl-copy --foreground --type text/plain",
+    ["*"] = "wl-copy --foreground --primary --type text/plain",
+  },
+  paste = {
+    ["+"] = function()
+      return vim.fn.systemlist('wl-paste --type "text/plain;charset=utf-8" 2>/dev/null')
+    end,
+    ["*"] = function()
+      return vim.fn.systemlist('wl-paste --primary --type "text/plain;charset=utf-8" 2>/dev/null')
+    end,
+  },
+  cache_enabled = true,
+}
