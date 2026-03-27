@@ -8,6 +8,20 @@ vim.keymap.set("n", "<leader>rr", ":checktime<CR>", { desc = "Reload current buf
 -- Force reload all buffers
 vim.keymap.set("n", "<leader>rR", ":bufdo checktime<CR>", { desc = "Reload all buffers" })
 
+-- New file adjacent to current file
+vim.keymap.set("n", "<leader>fn", function()
+  local dir = vim.fn.expand("%:p:h") .. "/"
+  vim.ui.input({ prompt = "New file: ", default = dir }, function(input)
+    if input and input ~= "" then
+      vim.cmd("edit " .. vim.fn.fnameescape(input))
+    end
+  end)
+end, { desc = "New File (adjacent)" })
+
+-- Insert mode movement
+vim.keymap.set("i", "<C-f>", "<Right>", { desc = "Move right in insert mode" })
+vim.keymap.set("i", "<C-b>", "<Left>", { desc = "Move left in insert mode" })
+
 -- Duplicate current line below, move to it, enter insert mode at end of line
 vim.keymap.set("n", "<leader>D", function()
 	local line = vim.api.nvim_get_current_line()

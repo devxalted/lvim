@@ -4,15 +4,16 @@ return {
 		opts = function(_, opts)
 			opts.keymap = vim.tbl_extend("force", opts.keymap or {}, {
 				["<CR>"] = { "fallback" },
-				["<Tab>"] = { "fallback" },
-				["<S-Tab>"] = { "fallback" },
-				["<C-Space>"] = function(cmp)
-					if cmp.is_visible() then
-						return cmp.accept()
-					else
-						return cmp.show()
-					end
-				end,
+				["<Tab>"] = { "snippet_forward", "fallback" },
+				["<S-Tab>"] = { "snippet_backward", "fallback" },
+				["<C-Space>"] = { "select_and_accept", "show", "fallback" },
+			})
+			opts.completion = vim.tbl_deep_extend("force", opts.completion or {}, {
+				list = {
+					selection = {
+						preselect = false,
+					},
+				},
 			})
 			return opts
 		end,

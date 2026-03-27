@@ -2,6 +2,20 @@
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 -- Add any additional autocmds here
 
+-- Match prettier's 2-space formatting for all prettier-handled filetypes
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = {
+    "typescript", "typescriptreact", "javascript", "javascriptreact", "svelte",
+    "css", "scss", "less", "html", "json", "jsonc", "yaml", "markdown", "graphql",
+  },
+  callback = function()
+    vim.bo.expandtab = true
+    vim.bo.shiftwidth = 2
+    vim.bo.tabstop = 2
+    vim.bo.softtabstop = 2
+  end,
+})
+
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   pattern = "*.templ",
   callback = function()

@@ -5,6 +5,7 @@
 local opt = vim.opt
 opt.shiftwidth = 4
 opt.expandtab = false
+opt.listchars = { tab = "  ", trail = "·", nbsp = "␣" } -- hide tab chars, keep other indicators
 opt.foldmethod = "expr"
 opt.foldexpr = "nvim_treesitter#foldexpr()"
 opt.timeoutlen = 1000
@@ -38,10 +39,22 @@ vim.g.clipboard = {
   },
   paste = {
     ["+"] = function()
-      return vim.fn.systemlist('wl-paste --type "text/plain;charset=utf-8" 2>/dev/null')
+      local raw = vim.fn.system('wl-paste --type "text/plain;charset=utf-8" 2>/dev/null')
+      local lines = vim.split(raw, '\n')
+      if lines[#lines] == '' then
+        table.remove(lines)
+        return { lines, 'V' }
+      end
+      return { lines, 'v' }
     end,
     ["*"] = function()
-      return vim.fn.systemlist('wl-paste --primary --type "text/plain;charset=utf-8" 2>/dev/null')
+      local raw = vim.fn.system('wl-paste --primary --type "text/plain;charset=utf-8" 2>/dev/null')
+      local lines = vim.split(raw, '\n')
+      if lines[#lines] == '' then
+        table.remove(lines)
+        return { lines, 'V' }
+      end
+      return { lines, 'v' }
     end,
   },
   cache_enabled = true,
